@@ -7,10 +7,29 @@ from flask_cors import CORS, cross_origin
 app = Flask(__name__)
 CORS(app)
 
+_red = 133
+_green = 21
+_blue = 21
+
 @app.route('/')
 def index():
     return render_template('index.html')
+    
+@app.route("/get_rgb", methods=["POST"], strict_slashes=False)
+def get_rgb():
+    global _red,_green,_blue
+    if request.method == "POST":
+        red = int(request.form["r"])
+        green = int(request.form["g"])
+        blue = int(request.form["b"])
 
+        if red == -1 and blue == -1 and green == -1:
+            pass
+        if red and blue and green:
+            _red = red
+            _blue = blue
+            _green = green
+    return render_template(url_for('index'))
 
 def gen(camera):
     while True:
@@ -20,7 +39,7 @@ def gen(camera):
         
 def makeup_gen(camera):
     while True:
-        frame = camera.get_frame(110,20,20)
+        frame = camera.get_frame(_red,_blue,_green,0.5)
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
